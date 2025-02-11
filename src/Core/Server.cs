@@ -19,7 +19,7 @@ namespace Core {
         public async Task StartAsync() {
             TcpListener listener = new TcpListener(IPAddress.Any, port);
             listener.Start();
-            Console.WriteLine($"[SERVER] Listening on port {port}...");
+            Console.WriteLine($"[SERVER] Listening on port '{port}'...");
 
             while (true) {
                 // Accept incoming client
@@ -42,12 +42,12 @@ namespace Core {
             if (File.Exists(filePath)) {
                 byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
                 await stream.WriteAsync(fileBytes, 0, fileBytes.Length);
-                Console.WriteLine($"[SERVER] Sent {fileName} to client.");
+                Console.WriteLine($"[SERVER] Sent '{fileName}' to client.");
             }
             else {
                 // File not found, send error message
                 await writer.WriteLineAsync("ERROR: File not found.");
-                Console.WriteLine($"[SERVER] File {fileName} not found.");
+                Console.WriteLine($"[SERVER] File '{fileName}' not found.");
             }
         }
     }
