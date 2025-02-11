@@ -29,25 +29,41 @@ namespace Core {
         }
 
         private async Task HandleClientAsync(TcpClient client) {
-            // Create stream, reader, and writer for communication
-            using NetworkStream stream = client.GetStream();
-            using StreamReader reader = new StreamReader(stream);
-            using StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
+            try {
+                // Create stream, reader, and writer for communication
+                using NetworkStream stream = client.GetStream();
+                using StreamReader reader = new StreamReader(stream);
+                using StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
 
-            // Read file request from client
-            string fileName = await reader.ReadLineAsync();
-            string filePath = Path.Combine(shareFolder, fileName);
+                // Read file request from client
+                string fileName = await reader.ReadLineAsync();
+                string filePath = Path.Combine(shareFolder, fileName);
 
-            // Check if the file exists and send it
-            if (File.Exists(filePath)) {
-                byte[] fileBytes = await File.ReadAllBytesAsync(filePath);
-                await stream.WriteAsync(fileBytes, 0, fileBytes.Length);
-                Console.WriteLine($"[SERVER] Sent '{fileName}' to client.");
+                if (File.Exists(filePath)) {
+                    // Notify the client that the file exists
+                    await writer.WriteLineAsync("OK");
+                    await writer.FlushAsync(); // Ensure the message is sent
+
+                    // Read file and send in chunks
+                    byte[] buffer = new byte[1024];
+                    using FileStream fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
+                    int bytesRead;
+                    
+                    while ((bytesRead = await fileStream.ReadAsync(buffer, 0, buffer.Length)) > 0) {
+                        await stream.WriteAsync(buffer, 0, bytesRead);
+                    }
+
+                    Console.WriteLine($"[SERVER] Sent '{fileName}' to client.");
+                } 
+                else {
+                    // File not found, send error message
+                    await writer.WriteLineAsync("ERROR: File not found.");
+                    await writer.FlushAsync();
+                    Console.WriteLine($"[SERVER] File '{fileName}' not found.");
+                }
             }
-            else {
-                // File not found, send error message
-                await writer.WriteLineAsync("ERROR: File not found.");
-                Console.WriteLine($"[SERVER] File '{fileName}' not found.");
+            catch (Exception ex) {
+                Console.WriteLine($"[SERVER] Error: {ex.Message}");
             }
         }
     }

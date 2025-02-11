@@ -22,24 +22,23 @@ namespace Core {
                 using StreamReader reader = new StreamReader(stream);
                 using StreamWriter writer = new StreamWriter(stream) { AutoFlush = true };
 
-                // Send file request to server
-                await writer.WriteAsync(fileName);
+                // Send file request
+                await writer.WriteLineAsync(fileName);
 
-                char[] buffer = new char[5];
-                await reader.ReadAsync(buffer, 0, 5);
-                string response = new string(buffer);
-
-                if (response == "ERROR") {
-                    Console.WriteLine($"[CLIENT] File '{fileName}' not found on server.");
+                // Wait for server response
+                string response = await reader.ReadLineAsync();
+                if (response != "OK") {
+                    Console.WriteLine($"[CLIENT] {response}");
                     return;
                 }
 
-                byte[] fileBytes = new byte[1024];
+                // Read file data and save to disk
                 using FileStream fileStream = new FileStream(savePath, FileMode.Create);
-
+                byte[] buffer = new byte[1024];
                 int bytesRead;
-                while ((bytesRead = await stream.ReadAsync(fileBytes, 0, fileBytes.Length)) > 0) {
-                    await fileStream.WriteAsync(fileBytes, 0, bytesRead);
+
+                while ((bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length)) > 0) {
+                    await fileStream.WriteAsync(buffer, 0, bytesRead);
                 }
 
                 Console.WriteLine($"[CLIENT] File '{fileName}' downloaded successfully.");
