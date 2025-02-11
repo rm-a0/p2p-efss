@@ -1,0 +1,61 @@
+# Ignore Visual Studio/VS Code specific files
+.vs/
+.vscode/
+.idea/
+
+# User-specific files
+*.user
+*.userosscache
+*.suo
+*.userprefs
+
+# Windows Installer files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# .NET build outputs
+bin/
+obj/
+
+# .NET Core SDK
+project.lock.json
+project.fragment.lock.json
+
+# .NET Core runtime
+*.exe
+*.dll
+*.pdb
+*.apk
+*.aot
+*.so
+*.dylib
+
+# .NET Core generated files
+artifacts/
+
+# ASP.NET temporary files
+aspnetcore/
+wwwroot/
+
+# NPM and Node.js (if you're using npm for frontend)
+node_modules/
+
+# JetBrains Rider
+.idea/
+
+# Windows Installer/Package Files
+*.cab
+*.msi
+*.msm
+*.msp
+
+# MacOS specific files
+.DS_Store
+
+# Linux specific files
+*.swp
+
+# Windows Thumbs.db
+Thumbs.db
